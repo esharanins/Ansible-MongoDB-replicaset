@@ -1,4 +1,4 @@
-Deployment of a mongodb replicaset
+Deployment of a mongodb replicaset with Ansible
 -----------------------------------------------------
 
 This playbook setup a MongoDB replicaset with
