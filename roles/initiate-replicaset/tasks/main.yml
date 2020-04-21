@@ -1,0 +1,54 @@
+---
+# Get replicaset info without authorization
+- name: Get replicaset info wo auth
+  shell: mongo admin --eval "rs.status()"
+  register: mongo_output_wo_auth
+
+# Get replicaset info with authorization
+- name: Get replicaset info wo auth
+  shell: mongo admin -u "{{ usr }}" -p "{{ pwd }}" --eval "rs.status()"
+  register: mongo_output_with_auth
+
+# Will check if replica is already initialized, then skips initialization
+- block:
+
+  # Generate and copy initRS script to primary
+    - name: copy initRS script
+      template:
+        src: initRS.j2
+        dest: /tmp/initRS.js
+
+    # Initiate ReplicaSet
+    - name: Intiate ReplicaSet replicaset on Primary
+      shell: mongo  /tmp/initRS.js
+
+    # Generate and copy master script to primary
+    - name: copy master script
+      template:
+        src: master.j2
+        dest: /tmp/master.js
+
+    # Wait for master
+    - name: wait for host to become primary
+      shell: mongo /tmp/master.js
+
+  when:
+    - ("NoReplicationEnabled" in mongo_output_wo_auth.stdout) or
+      ("NotYetInitialized" in mongo_output_wo_auth.stdout) or
+      ("NoReplicationEnabled" in mongo_output_with_auth.stdout) or
+      ("NotYetInitialized" in mongo_output_with_auth.stdout)
+
+ # Will check, if possible to get rs.status() wuthout authorization
+- block:
+
+    # Generate and copy script to primary
+    - name: copy admin script
+      template:
+        src: admin.j2
+        dest: /tmp/admin.js
+
+    # Create primary administrator
+    - name: create primary administrator
+      shell: mongo /tmp/admin.js
+
+  when: '"Unauthorized" not in mongo_output_wo_auth.stdout'

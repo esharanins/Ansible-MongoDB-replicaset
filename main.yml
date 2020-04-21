@@ -1,0 +1,47 @@
+---
+# Deploy MongoDB cluster with three nodes: Primary, Secondary and Arbiter
+
+# Install mongodb on each node
+- hosts: all
+  become: yes
+  roles:
+  - role: install-mongo
+
+# This section is needed to create key file for the first time
+# Create key file
+#- hosts: localhost
+#  tasks:
+#  - name: create key file locally
+#    local_action: shell openssl rand -base64 755 > /tmp/mongodb-keyfile.key
+
+# Copy key file to each node, add config to /etc/mongod.conf and restart mongo
+- hosts: all
+  become: yes
+  roles:
+  - role: set-key-files
+
+# Initiate ReplicaSet on Primary node, wait for master, add secondary, add arbiter, add admin user and restart
+- hosts: primary
+  become: yes
+  roles:
+  - role: add-replicaset-config
+
+- hosts: primary
+  become: yes
+  roles:
+  - role: initiate-replicaset
+
+# Restart Secondaries taking into account the new configuration
+- hosts: secondaries
+  become: yes
+  roles:
+  - role: add-replicaset-config
+  - role: wait-for-connection
+
+
+# Add members to the replicaset - secondary and arbiter
+- hosts: primary
+  become: yes
+  roles:
+  - role: add-members
+#  - role: create_users

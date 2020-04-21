@@ -1,0 +1,12 @@
+---
+# Add new instructions to the /etc/mongod.conf
+  - set_fact:
+      mongod_template: "{{ lookup('template', '../templates/mongod.conf-cluster.j2') }}"
+
+  - name: Edit /etc/mongod.conf
+    blockinfile:
+      path: /etc/mongod.conf
+      block: '{{ mongod_template }}'
+      state: present
+    notify:
+      - Restart mongod

@@ -1,0 +1,2 @@
+usr: "{{ hostvars[inventory_hostname]['db_cluster_admin_username'] }}"
+pwd: "{{ hostvars[inventory_hostname]['db_cluster_admin_password'] }}"

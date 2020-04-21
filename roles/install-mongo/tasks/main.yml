@@ -1,0 +1,92 @@
+---
+### Don't forget to run common_configuration_oracle_linux" role first! ###
+### Mount separate disk to /var/lib/mongo ! ###
+
+# Prepare OS for WiredTiger DB engine
+  - name: Disable swap in file
+    lineinfile:
+      path: /etc/sysctl.conf
+      line: vm.swappiness = 1
+      state: present
+    notify:
+      - Apply swappiness setting
+
+# Start and enable ntpd
+  - name: Start and enable ntpd.
+    systemd:
+       name: ntpd
+       state: started
+       enabled: yes
+
+# Stop and disable firewall
+  - name: Disable firewalld
+    systemd:
+       name: firewalld
+       state: stopped
+       enabled: no
+
+# Disable SELinux mechanism
+  - name: Set SELinux=Permissive
+    selinux:
+      policy: targeted
+      state: permissive
+
+# Configure tuned
+  - name: Configure tuned
+    file:
+      path: /usr/lib/tuned/mongodb
+      state: directory
+
+  - name: Create configuration for tuned
+    template:
+      src: tuned.conf.j2
+      dest: /usr/lib/tuned/mongodb/tuned.conf
+    notify:
+      - Enable tuned
+
+# Add new instructions to the logrotate.conf
+  - set_fact:
+      logrotate_template: "{{ lookup('template', 'logrotate.conf.j2') }}"
+
+  - name: Edit logrotate.conf
+    blockinfile:
+      path: /etc/logrotate.conf
+      block: '{{ logrotate_template }}'
+      state: present
+
+# Add MongoDB repo
+  - name: Add MongoDB repo
+    template:
+      src: mongodb-org-4.2.repo.j2
+      dest: /etc/yum.repos.d/mongodb-org-4.2.repo
+
+# Install MongoDB
+  - name: Install MongoDB
+    yum:
+      name: mongodb-org
+      state: present
+    notify:
+      - Create MongoDB config file
+      - Enable mongod service
+      - Restart mongod
+
+# This section no longer needed, because Ansible module "mongodb_replicaset" does not work
+## Install python
+#  - name: Install python
+#    yum:
+#      name:
+#        - python3
+#        - python-setuptools
+#      state: present
+
+## Install python-pip
+#  - name: Install python-pip
+#    easy_install:
+#      name: pip
+#      state: latest
+
+## Install the latest pymongo package
+#  - name: Install the latest pymongo package
+#    pip:
+#      name: pymongo
+#      state: latest

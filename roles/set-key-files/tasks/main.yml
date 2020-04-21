@@ -1,0 +1,10 @@
+---
+# Copy master key
+  - name: Copy master key
+    copy:
+      src: /tmp/mongodb-keyfile.key
+      dest: /var/lib/mongo/mongodb-keyfile.key
+      owner: mongod
+      group: mongod
+      mode: '0400'
+      force: no

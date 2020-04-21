@@ -1,0 +1,8 @@
+rs.initiate(
+  {
+    _id : "replicaset",
+    members: [
+      { _id : 0, host : "{{ groups['primary'][0] }}:27017" }
+    ]
+  }
+)

@@ -1,0 +1,13 @@
+# system-specific logs may be also be configured here.
+# MongoDB
+/var/log/mongodb/mongod.log {
+    missingok
+    compress
+    delaycompress
+    daily
+    rotate 7
+    nocreate
+    postrotate
+        /bin/kill -SIGUSR1 `cat /var/run/mongodb/mongod.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}

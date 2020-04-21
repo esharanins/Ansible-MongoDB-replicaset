@@ -1,0 +1,26 @@
+---
+# Apply swappiness
+  - name: Apply swappiness setting
+    shell: sysctl -p
+
+# Enable tuned
+  - name: Enable tuned
+    shell: tuned-adm profile mongodb
+
+# Create MongoDB config file
+  - name: Create MongoDB config file
+    template:
+      src: mongod.conf.j2
+      dest: /etc/mongod.conf
+
+# Enable mongod service for automatic startup
+  - name: Enable mongod service
+    systemd:
+      name: mongod
+      enabled: yes
+
+# Restart mongod service
+  - name: Restart mongod
+    systemd:
+      name: mongod
+      state: restarted

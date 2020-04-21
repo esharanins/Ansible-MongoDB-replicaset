@@ -1,0 +1,10 @@
+---
+# Add secondaries to replicaset
+- name: Add secondaries
+  shell: mongo -u "{{ usr }}" -p "{{ pwd }}" --eval 'rs.add("{{ item }}:27017")'
+  with_items:
+   - "{{ groups['secondary'] }}"
+
+# Add arbiter to replicaset
+- name: Add arbiter
+  shell: mongo -u "{{ usr }}" -p "{{ pwd }}" --eval 'rs.addArb("{{ groups['arbiter'][0] }}:27017")'

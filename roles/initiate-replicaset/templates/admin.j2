@@ -1,0 +1,8 @@
+// Create administrative user
+admin = db.getSiblingDB("admin")
+admin.createUser(
+  {
+    user: "{{ db_cluster_admin_username }}",
+    pwd: "{{ db_cluster_admin_password }}",
+    roles: [ { role: "root", db: "admin" } ]
+  })

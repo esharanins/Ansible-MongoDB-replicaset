@@ -1,0 +1,13 @@
+---
+-
+# This section no longer needed, because Ansible module "mongodb_replicaset" does not work
+#- mongodb_replicaset:
+#    replica_set: replicaset
+#    login_host: localhost
+#    login_user: root
+#    login_password: toor
+#    arbiter_at_index: 2
+#    members:
+#    - "{{ groups['primary'][0] }}:27017"
+#    - "{{ groups['secondary'][0] }}:27017"
+#    - "{{ groups['arbiter'][0] }}:27017"
