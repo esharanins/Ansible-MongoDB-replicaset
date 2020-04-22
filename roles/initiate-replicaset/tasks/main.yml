@@ -5,9 +5,10 @@
   register: mongo_output_wo_auth
 
 # Get replicaset info with authorization
-- name: Get replicaset info wo auth
+- name: Get replicaset info with auth
   shell: mongo admin -u "{{ usr }}" -p "{{ pwd }}" --eval "rs.status()"
   register: mongo_output_with_auth
+  when: '"Unauthorized" in mongo_output_wo_auth.stdout'
 
 # Will check if replica is already initialized, then skips initialization
 - block:
